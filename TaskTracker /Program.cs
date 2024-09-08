@@ -25,7 +25,7 @@ internal static class Program
             {"mark", updateTaskStatusCommand},
         };
 
-        var cli = new CommandLineInterface(command,taskRepository);
+        var cli = new CommandLineInterface(command);
 
         Console.WriteLine("Welcome to Task Tracker!");
         Console.WriteLine("Available commands: add, update, delete, mark-in-progress, mark-done, list");

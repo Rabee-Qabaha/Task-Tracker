@@ -13,20 +13,6 @@ public class GetListsCommand: ICommand
         _repository = repository;
     }
     
-    private static void ShowTasks(List<TaskModel> tasks)
-    {
-        if (tasks.Count == 0)
-        {
-            Console.WriteLine("There are no tasks, you can add new one :)");
-        }
-        var orderedTasks = tasks.OrderBy(t => t.Id);
-        foreach (var task in orderedTasks)
-        {
-            Console.WriteLine(
-                $"{task.Id} | {task.Description} | {task.Status} | {task.CreatedAt} | {task.UpdatedAt}");
-        }
-    }
-
     public async void Execute(string[] args)
     {
         if (args.Length == 0)
@@ -55,6 +41,20 @@ public class GetListsCommand: ICommand
                     Console.WriteLine($"Error: Unknown status '{args[0]}'.");
                     break;
             }
+        }
+    }
+    
+    private static void ShowTasks(List<TaskModel> tasks)
+    {
+        if (tasks.Count == 0)
+        {
+            Console.WriteLine("There are no tasks, you can add new one :)");
+        }
+        var orderedTasks = tasks.OrderBy(t => t.Id);
+        foreach (var task in orderedTasks)
+        {
+            Console.WriteLine(
+                $"{task.Id} | {task.Description} | {task.Status} | {task.CreatedAt} | {task.UpdatedAt}");
         }
     }
 }
