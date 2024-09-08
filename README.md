@@ -31,58 +31,44 @@ cd Task-Tracker
 ```
 ## Commands
 
-The following commands are available in the Task Tracker CLI:
+### Adding a new task
+```bash
+add Buy groceries
+```
+### Updating a task
+```bash
+update 1 Buy groceries and cook dinner
+```
+### Deleting a task
+```bash
+delete 1
+```
+### Marking a task as in progress
+```bash
+mark in-progress 1
+```
+Marking a task as done
+```bash
+mark done 1
+```
+Listing all tasks
+```bash
+list
+```
+### Listing tasks by status
+#### Listing "todo" tasks
+```bash
+list todo
+```
 
-- **list**:  
-  Lists all tasks.  
-  Example:  
-  `list`
-
-- **list todo**:  
-  Lists tasks with a "todo" status.  
-  Example:  
-  `list todo`
-
-- **list done**:  
-  Lists tasks with a "done" status.  
-  Example:  
-  `list done`
-
-- **list in-progress**:  
-  Lists tasks with an "in-progress" status.  
-  Example:  
-  `list in-progress`
-
-- **add**:  
-  Adds a new task with a description.  
-  Example:  
-  `add "Task description"`
-
-- **delete**:  
-  Deletes a task by its ID.  
-  Example:  
-  `delete 1` (This deletes the task with ID 1)
-
-- **update**:  
-  Updates a task's description by its ID.  
-  Example:  
-  `update 1 "New task description"` (This updates the task with ID 1)
-
-- **mark-done**:  
-  Marks a task as "done" by its ID.  
-  Example:  
-  `mark done 1` (This marks the task with ID 1 as done)
-
-- **mark-in-progress**:  
-  Marks a task as "in-progress" by its ID.  
-  Example:  
-  `mark in-progress 1` (This marks the task with ID 1 as in-progress)
-
-- **mark-todo**:  
-  Marks a task as "todo" by its ID.  
-  Example:  
-  `mark todo 1` (This marks the task with ID 1 as todo)
-
+#### Listing "done" tasks
+```bash
+list done
+```
+#### Listing "in-progress" tasks
+```bash
+list in-progress
+```
 
 ## Contact
 
