@@ -19,13 +19,13 @@ internal static class Program
         var command = new Dictionary<string, ICommand>()
         {
             {"list", getListsCommand},
-            { "add", addTaskCommand },
+            {"add", addTaskCommand },
             {"delete", deleteTaskCommand },
             {"update", updateTaskCommand },
             {"mark", updateTaskStatusCommand},
         };
 
-        var cli = new CommandLineInterface(command,taskRepository);
+        var cli = new CommandLineInterface(command);
 
         Console.WriteLine("Welcome to Task Tracker!");
         Console.WriteLine("Available commands: add, update, delete, mark-in-progress, mark-done, list");
@@ -34,7 +34,7 @@ internal static class Program
         string? input;
         do
         {
-            Console.Write("> "); // Shows a prompt for better user experience
+            Console.WriteLine(">");
             input = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(input)) continue;
