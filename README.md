@@ -77,6 +77,9 @@ Email: [Qabaha.Rabee@outlook.com](mailto:Qabaha.Rabee@outlook.com)
 LinkedIn: [www.linkedin.com/in/rabee-q](https://www.linkedin.com/in/rabee-q)
 
 
+## Task Tracker CLI Project
+
+This project is part of a learning roadmap designed to help developers practice building real-world applications. It is based on the [Task Tracker Roadmap Project](https://roadmap.sh/projects/task-tracker) from roadmap.sh. The purpose of this project is to provide hands-on experience with key concepts and best practices for task tracking in a command-line interface (CLI) application.
 
 
 
