@@ -57,7 +57,7 @@ The following commands are available in the Task Tracker CLI:
   Adds a new task with a description.  
   Example:  
   `add "Task description"`
-- 
+
 - **delete**:  
   Deletes a task by its ID.  
   Example:  
