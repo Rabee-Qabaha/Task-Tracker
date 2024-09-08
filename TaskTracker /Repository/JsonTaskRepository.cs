@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TaskTracker.App;
+using TaskTracker.Domain;
 using TaskTracker.Utils;
 
 namespace TaskTracker.Repository;
@@ -20,13 +21,13 @@ public class JsonTaskRepository: ITaskRepository
         return JsonSerializer.Deserialize<List<TaskModel>>(json) ?? new List<TaskModel>();
     }
 
-    public async Task<List<TaskModel>> GetByStatus(Task_Status status)
+    public async Task<List<TaskModel>> GetByStatus(StatusTask status)
     {
         var tasks = await GetAllTasksAsync();
         return tasks.Where(t=> t.Status==status).ToList();
     }
 
-    public async void UpdateTaskStatus(int id, Task_Status status)
+    public async void UpdateTaskStatus(int id, StatusTask status)
     {
         var tasks = await GetAllTasksAsync();
         var taskToUpdate = tasks.FirstOrDefault(t => t.Id == id);

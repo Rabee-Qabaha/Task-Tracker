@@ -14,7 +14,7 @@ public static class FileHelper
         }
         catch (UnauthorizedAccessException e)
         {
-            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied.");
+            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied, more details: {e.Message}");
             throw;
         }
     }
