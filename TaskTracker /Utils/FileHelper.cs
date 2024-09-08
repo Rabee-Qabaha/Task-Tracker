@@ -5,6 +5,11 @@ public static class FileHelper
     
     public static void EnsureFileExists(string filePath, string defaultContent = "[]")
     {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
+        }
+        
         try
         {
             if (!File.Exists(filePath))
@@ -14,29 +19,49 @@ public static class FileHelper
         }
         catch (UnauthorizedAccessException e)
         {
-            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied, more details: {e.Message}");
+            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied, details: {e.Message}");
+            throw;
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine($"IO Error: Failed to access the file at {filePath}, details: {e.Message}");
             throw;
         }
     }
 
     public static string GetFilePath(string fileName)
     {
-        string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return Path.Combine(homeDirectory, fileName);
+        try
+        {
+            string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            return Path.Combine(homeDirectory, fileName);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine($"Error: Unable to create or access the file {fileName}. Permission denied, more details: {e.Message}");
+            throw;
+        }
     }
 
     public static async Task<string> ReadFileAsync(string filePath)
     {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
+        }
+
         if (!File.Exists(filePath)) throw new FileNotFoundException("File not found", filePath);
         return await File.ReadAllTextAsync(filePath);
+
     }
 
-    public static void WriteFile(string filePath, string content)
+    public static async Task WriteFileAsync(string filePath, string content)
     {
-        if (File.Exists(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
         {
-            File.WriteAllText(filePath, content);
+            throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
         }
+        
+        await File.WriteAllTextAsync(filePath, content);
     }
-    
 }

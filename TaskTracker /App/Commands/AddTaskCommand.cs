@@ -12,7 +12,7 @@ public class AddTaskCommand: ICommand
         _repository = repository;
     }
 
-    public void Execute(string[] args)
+    public async Task Execute(string[] args)
     {
         var description = string.Join(" ", args);
         if (string.IsNullOrWhiteSpace(description))
@@ -20,7 +20,15 @@ public class AddTaskCommand: ICommand
             Console.WriteLine("Error: No Description were provided");
             return;
         }
-        
-        _repository.AddTask(description);
+
+        try
+        {
+            await _repository.AddTaskAsync(description);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding task: {ex.Message}");
+        }
+
     }
 }

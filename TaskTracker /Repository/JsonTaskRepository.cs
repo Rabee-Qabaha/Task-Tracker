@@ -1,6 +1,6 @@
 using System.Text.Json;
-using TaskTracker.App;
 using TaskTracker.Domain;
+using TaskTracker.Exceptions;
 using TaskTracker.Utils;
 
 namespace TaskTracker.Repository;
@@ -17,30 +17,38 @@ public class JsonTaskRepository: ITaskRepository
     
     public async Task<List<TaskModel>> GetAllTasksAsync()
     {
-        var json =await FileHelper.ReadFileAsync(_filePath);
-        return JsonSerializer.Deserialize<List<TaskModel>>(json) ?? new List<TaskModel>();
+        try
+        {
+            var json =await FileHelper.ReadFileAsync(_filePath);
+            return JsonSerializer.Deserialize<List<TaskModel>>(json) ?? new List<TaskModel>();
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error deserializing tasks from JSON: {ex.Message}");
+            return [];
+        }
     }
 
-    public async Task<List<TaskModel>> GetByStatus(StatusTask status)
+    public async Task<List<TaskModel>> GetByStatusAsync(StatusTask status)
     {
         var tasks = await GetAllTasksAsync();
         return tasks.Where(t=> t.Status==status).ToList();
     }
 
-    public async void UpdateTaskStatus(int id, StatusTask status)
+    public async Task UpdateTaskStatusAsync(int id, StatusTask status)
     {
         var tasks = await GetAllTasksAsync();
-        var taskToUpdate = tasks.FirstOrDefault(t => t.Id == id);
+        var taskToUpdate = tasks.Find(t => t.Id == id);
         
         if (taskToUpdate == null)
         {
-            throw new NullReferenceException($"Task with id: {id} not found");
+            throw new TaskNotFoundException(id);
         }
         
         taskToUpdate.Status = status;
         taskToUpdate.UpdatedAt = DateTime.Now;
         
-        SaveAllTasks(tasks);
+        await SaveAllTasksAsync(tasks);
 
         Console.WriteLine($"the task with id: {id} status Updated to: {status}");
     }
@@ -48,24 +56,33 @@ public class JsonTaskRepository: ITaskRepository
     public async Task<TaskModel> GetTaskByIdAsync(int id)
     {
         var tasks = await GetAllTasksAsync();
-        var task = tasks.FirstOrDefault(t => t.Id == id);
+        var task = tasks.Find(t => t.Id == id);
 
         if (task == null)
         {
-            throw new NullReferenceException($"Task with id: {id} not found");
+            throw new TaskNotFoundException(id);
         }
         
         return task;
     }
 
-    public void SaveAllTasks(List<TaskModel> tasks)
+    private static readonly SemaphoreSlim Semaphore = new(1, 1);
+    public async Task SaveAllTasksAsync(List<TaskModel> tasks)
     {
-        var option = new JsonSerializerOptions { WriteIndented = true };
-        var json = JsonSerializer.Serialize(tasks, option);
-        FileHelper.WriteFile(_filePath, json);
+        await Semaphore.WaitAsync();
+        try
+        {
+            var option = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(tasks, option);
+            await FileHelper.WriteFileAsync(_filePath, json);
+        }
+        finally
+        {
+            Semaphore.Release();
+        }
     }
 
-    public async void AddTask(string description)
+    public async Task AddTaskAsync(string description)
     {
         var tasks = await GetAllTasksAsync();
         var taskId = tasks.Count != 0 ? tasks.Max(t=>t.Id) + 1 : 1;
@@ -73,41 +90,45 @@ public class JsonTaskRepository: ITaskRepository
         var task = new TaskModel()
         {
             Id = taskId,
-            Description = description,
+            Description = description
         };
         
         tasks.Add(task);
-        SaveAllTasks(tasks);
+        await SaveAllTasksAsync(tasks);
         
         Console.WriteLine($"Task added successfully with ID: {taskId}");
     }
 
-    public async void UpdateTask(int id, string description)
+    public async Task UpdateTaskAsync(int id, string description)
     {
         var tasks = await GetAllTasksAsync();
         var taskToUpdate = tasks.Find(t => t.Id == id);
 
         if (taskToUpdate == null)
         {
-            throw new NullReferenceException($"Task with id: {id} not found");
+            throw new TaskNotFoundException(id);
         }
         
         taskToUpdate.Description = description;
         taskToUpdate.UpdatedAt= DateTime.Now;
         
-        SaveAllTasks(tasks);
+        await SaveAllTasksAsync(tasks);
         
         Console.WriteLine($"Task with ID: {id} Updated successfully");
     }
 
-    public async void DeleteTask(int id)
+    public async Task DeleteTaskAsync(int id)
     {
         var tasks = await GetAllTasksAsync();
-        await GetTaskByIdAsync(id);// to handel null ID, is can be improved
+        var taskToDelete = tasks.FirstOrDefault(t => t.Id == id);
+    
+        if (taskToDelete == null)
+        {
+            throw new TaskNotFoundException(id);
+        }
         
-        tasks.RemoveAll(t=> t.Id == id);
-        
-        SaveAllTasks(tasks);
+        tasks.Remove(taskToDelete);
+        await SaveAllTasksAsync(tasks);
         
         Console.WriteLine($"Task Task with ID: {id} successfully Deleted!");
     }

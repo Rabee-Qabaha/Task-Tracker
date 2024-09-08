@@ -1,4 +1,5 @@
 using TaskTracker.App.Interfaces;
+using TaskTracker.Exceptions;
 using TaskTracker.Repository;
 
 namespace TaskTracker.App.Commands;
@@ -12,14 +13,32 @@ public class DeleteTaskCommand: ICommand
         _repository = repository;
     }
 
-    public void Execute(string[] args)
+    public async Task Execute(string[] args)
     {
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Error: Please provide a task ID.");
+            return;
+        }
+        
         if (!int.TryParse(args[0], out int taskId))
         {
             Console.WriteLine("Error: Please provide a valid task ID.");
             return;
         }
-        
-        _repository.DeleteTask(taskId);
+
+        try
+        {
+            await _repository.DeleteTaskAsync(taskId);
+        }
+        catch (TaskNotFoundException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+        }
+
     }
 }

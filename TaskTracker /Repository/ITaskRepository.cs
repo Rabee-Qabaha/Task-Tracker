@@ -6,10 +6,10 @@ namespace TaskTracker.Repository;
 public interface ITaskRepository
 {
     Task<List<TaskModel>> GetAllTasksAsync();
-    Task<List<TaskModel>> GetByStatus(StatusTask status);
-    void UpdateTaskStatus(int id, StatusTask status);
-    void SaveAllTasks(List<TaskModel> tasks);
-    void AddTask(string description);
-    void UpdateTask(int id, string description);
-    void DeleteTask(int id);
+    Task<List<TaskModel>> GetByStatusAsync(StatusTask status);
+    Task UpdateTaskStatusAsync(int id, StatusTask status);
+    Task SaveAllTasksAsync(List<TaskModel> tasks);
+    Task AddTaskAsync(string description);
+    Task UpdateTaskAsync(int id, string description);
+    Task DeleteTaskAsync(int id);
 }

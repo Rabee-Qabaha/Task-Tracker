@@ -1,4 +1,5 @@
 using TaskTracker.App.Interfaces;
+using TaskTracker.Exceptions;
 using TaskTracker.Repository;
 
 namespace TaskTracker.App.Commands;
@@ -12,7 +13,7 @@ public class UpdateTaskCommand: ICommand
         _repository = repository;
     }
 
-    public void Execute(string[] args)
+    public async Task Execute(string[] args)
     {
         var description = args[1];
 
@@ -25,7 +26,18 @@ public class UpdateTaskCommand: ICommand
             Console.WriteLine("Error: The description must not be empty.");
             return;
         }
-        
-        _repository.UpdateTask(taskId,description);
+
+        try
+        {
+            await _repository.UpdateTaskAsync(taskId, description);
+        }
+        catch (TaskNotFoundException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+        }
     }
 }
