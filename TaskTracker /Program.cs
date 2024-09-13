@@ -2,6 +2,7 @@
 using TaskTracker.App.Interfaces;
 using TaskTracker.Repository;
 using TaskTracker.User_Interface;
+using TaskTracker.Utils;
 
 namespace TaskTracker;
 
@@ -9,7 +10,8 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        var taskRepository = new JsonTaskRepository();
+        var fileHelper = new FileHelper(new SystemFileSystem());
+        var taskRepository = new JsonTaskRepository(fileHelper);
         var addTaskCommand = new AddTaskCommand(taskRepository);
         var getListsCommand = new GetListsCommand(taskRepository);
         var deleteTaskCommand = new DeleteTaskCommand(taskRepository);

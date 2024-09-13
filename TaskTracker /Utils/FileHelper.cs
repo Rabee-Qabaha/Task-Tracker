@@ -1,9 +1,17 @@
+using TaskTracker.Utils.Interfaces;
+
 namespace TaskTracker.Utils;
 
-public static class FileHelper
+public class FileHelper
 {
+    private static IFileSystem? _fileSystem;
+
+    public FileHelper(IFileSystem? fileSystem)
+    {
+        _fileSystem = fileSystem;
+    }
     
-    public static void EnsureFileExists(string filePath, string defaultContent = "[]")
+    public async Task EnsureFileExistsAsync(string filePath, string defaultContent = "[]")
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -12,29 +20,29 @@ public static class FileHelper
         
         try
         {
-            if (!File.Exists(filePath))
+            if (!await _fileSystem!.FileExistsAsync(filePath))
             {
-                File.WriteAllText(filePath, defaultContent);
+                await _fileSystem.WriteAllTextAsync(filePath, defaultContent);
             }
         }
-        catch (UnauthorizedAccessException e)
+        catch (UnauthorizedAccessException ex)
         {
-            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied, details: {e.Message}");
+            Console.WriteLine($"Error: Unable to create or access the file at {filePath}. Permission denied, details: {ex.Message}");
             throw;
         }
-        catch (IOException e)
+        catch (IOException ex)
         {
-            Console.WriteLine($"IO Error: Failed to access the file at {filePath}, details: {e.Message}");
+            Console.WriteLine($"IO Error: Failed to access the file at {filePath}, details: {ex.Message}");
             throw;
         }
     }
 
-    public static string GetFilePath(string fileName)
+    public async Task<string> GetFilePath(string fileName)
     {
         try
         {
-            string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(homeDirectory, fileName);
+            var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            return await _fileSystem!.CombinePathAsync(homeDirectory, fileName);
         }
         catch (UnauthorizedAccessException e)
         {
@@ -43,25 +51,24 @@ public static class FileHelper
         }
     }
 
-    public static async Task<string> ReadFileAsync(string filePath)
+    public async Task<string> ReadFileAsync(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
             throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
         }
 
-        if (!File.Exists(filePath)) throw new FileNotFoundException("File not found", filePath);
-        return await File.ReadAllTextAsync(filePath);
-
+        if (! await _fileSystem!.FileExistsAsync(filePath)) throw new FileNotFoundException("File not found", filePath);
+        return await _fileSystem.ReadAllTextAsync(filePath);
     }
 
-    public static async Task WriteFileAsync(string filePath, string content)
+    public async Task WriteFileAsync(string filePath, string content)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
             throw new ArgumentException("File path cannot be null or empty", nameof(filePath));
         }
         
-        await File.WriteAllTextAsync(filePath, content);
+        await _fileSystem!.WriteAllTextAsync(filePath, content);
     }
 }

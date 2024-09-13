@@ -7,19 +7,21 @@ namespace TaskTracker.Repository;
 
 public class JsonTaskRepository: ITaskRepository
 {
+    private readonly FileHelper _fileHelper;
     private readonly string _filePath;
 
-    public JsonTaskRepository()
+    public JsonTaskRepository(FileHelper fileHelper)
     {
-        _filePath = FileHelper.GetFilePath("Tasks.json");
-        FileHelper.EnsureFileExists(_filePath);
+        _fileHelper = fileHelper;
+        _filePath = fileHelper.GetFilePath("Tasks.json").Result;
+        _ = _fileHelper.EnsureFileExistsAsync(_filePath);
     }
     
     public async Task<List<TaskModel>> GetAllTasksAsync()
     {
         try
         {
-            var json =await FileHelper.ReadFileAsync(_filePath);
+            var json =await _fileHelper.ReadFileAsync(_filePath);
             return JsonSerializer.Deserialize<List<TaskModel>>(json) ?? new List<TaskModel>();
         }
         catch (JsonException ex)
@@ -74,7 +76,7 @@ public class JsonTaskRepository: ITaskRepository
         {
             var option = new JsonSerializerOptions { WriteIndented = true };
             var json = JsonSerializer.Serialize(tasks, option);
-            await FileHelper.WriteFileAsync(_filePath, json);
+            await _fileHelper.WriteFileAsync(_filePath, json);
         }
         finally
         {
